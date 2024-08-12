@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const app = express();
 
 // Access the secret key and expected hash from environment variables
-const SECRET_KEY = process.env.SECRET_KEY;  // Securely stored in environment variables
+const HASH_SECRET_KEY = process.env.SECRET_KEY;  // Securely stored in environment variables
 const hashText = process.env.HASH_TEXT;  // Securely stored in environment variables
 
 app.get('/hash.txt', (req, res) => {
