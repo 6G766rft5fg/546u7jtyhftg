@@ -2,8 +2,9 @@ const express = require('express');
 const crypto = require('crypto');
 const app = express();
 
-const SECRET_KEY = "your_secret_key";  // Replace with a strong, secure key
-const hashText = "YOUR_EXPECTED_HASH_HERE";  // Replace with your actual hash
+// Retrieve secret key and hash text from environment variables
+const SECRET_KEY = process.env.SECRET_KEY;
+const hashText = process.env.HASH_TEXT;
 
 app.get('/hash.txt', (req, res) => {
     const authHeader = req.header('Authorization');
