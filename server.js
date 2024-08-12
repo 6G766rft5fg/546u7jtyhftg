@@ -2,17 +2,12 @@ const express = require('express');
 const crypto = require('crypto');
 const app = express();
 
-// Retrieve secret key and hash text from environment variables
-const SECRET_KEY = process.env.SECRET_KEY;
-const hashText = process.env.HASH_TEXT;
+// Access the secret key and expected hash from environment variables
+const SECRET_KEY = process.env.SECRET_KEY;  // Securely stored in environment variables
+const hashText = process.env.HASH_TEXT;  // Securely stored in environment variables
 
 app.get('/hash.txt', (req, res) => {
-    const authHeader = req.header('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).send('Authorization header missing or invalid.');
-    }
-
-    const token = authHeader.split('Bearer ')[1];
+    const token = req.header('Authorization').split('Bearer ')[1];
     const [calculatedHash, nonce, timestamp] = token.split(':');
     const currentTimestamp = Date.now();
 
@@ -26,7 +21,6 @@ app.get('/hash.txt', (req, res) => {
     const expectedToken = crypto.createHmac('sha256', SECRET_KEY)
                                 .update(`${calculatedHash}:${nonce}:${timestamp}`)
                                 .digest('hex');
-
     if (expectedToken !== token) {
         return res.status(403).send('Request denied: Invalid token.');
     }
@@ -35,7 +29,6 @@ app.get('/hash.txt', (req, res) => {
     res.send(hashText);
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+const listener = app.listen(process.env.PORT || 3000, () => {
+    console.log('Your app is listening on port ' + listener.address().port);
 });
