@@ -1,0 +1,33 @@
+name: Validate Hash Request
+
+on:
+  repository_dispatch:
+    types: [validate-hash]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Validate Hash
+      run: |
+        echo "Validating hash request..."
+
+        # Set variables
+        REQUEST_HASH=${{ github.event.client_payload.hash }}
+        REQUEST_NONCE=${{ github.event.client_payload.nonce }}
+        REQUEST_TIMESTAMP=${{ github.event.client_payload.timestamp }}
+        SECRET_KEY="${{ secrets.SECRET_KEY }}"
+
+        # Generate expected HMAC
+        EXPECTED_HMAC=$(echo -n "$REQUEST_HASH:$REQUEST_NONCE:$REQUEST_TIMESTAMP" | openssl dgst -sha256 -hmac "$SECRET_KEY" | sed 's/^.* //')
+
+        # Check if the HMAC matches
+        if [ "$EXPECTED_HMAC" != "${{ github.event.client_payload.token }}" ]; then
+          echo "Invalid request: HMAC does not match."
+          exit 1
+        fi
+
+        echo "Hash is valid. Serving the hash.txt file."
